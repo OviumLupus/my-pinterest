@@ -31,55 +31,65 @@ let currentPinId = null;
 
 // === Загрузка данных ===
 async function loadPins() {
-  // Сначала проверяем localStorage
-  const saved = localStorage.getItem('myPins');
+  const saved = localStorage.getItem('cbtPins');
   if (saved) {
     pins = JSON.parse(saved);
     renderPins();
     return;
   }
 
-  // Если нет — загружаем из data.json
-  try {
-    const response = await fetch('data.json');
-    pins = await response.json();
-    savePins();
-    renderPins();
-  } catch (error) {
-    grid.innerHTML = '<p style="padding:24px;">Ошибка загрузки 😔</p>';
-  }
+  // Стартуем с пустого массива
+  pins = [];
+  savePins();
+  renderPins();
 }
 
 function savePins() {
-  localStorage.setItem('myPins', JSON.stringify(pins));
+  localStorage.setItem('cbtPins', JSON.stringify(pins));
 }
 
 // === Отрисовка карточек ===
 function renderPins() {
   const filtered = pins.filter(pin => {
     const matchCategory = currentCategory === 'all' || pin.category === currentCategory;
-    const matchSearch = pin.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
-                        pin.description.toLowerCase().includes(currentSearch.toLowerCase());
+    const title = pin.title || '';
+    const description = pin.description || '';
+    const matchSearch = title.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                        description.toLowerCase().includes(currentSearch.toLowerCase());
     return matchCategory && matchSearch;
   });
 
   grid.innerHTML = '';
 
   if (filtered.length === 0) {
-    grid.innerHTML = '<p style="padding:24px;text-align:center;column-span:all;">Ничего не найдено 🔍<br><br>Нажми ＋ чтобы добавить первый пин!</p>';
+    grid.innerHTML = `
+      <div class="empty-state" style="column-span: all; -webkit-column-span: all;">
+        <div class="empty-state__icon">📌</div>
+        <div class="empty-state__text">Пока пусто</div>
+        <div class="empty-state__hint">Нажми ＋ чтобы добавить первый пин!</div>
+      </div>
+    `;
     return;
   }
 
   filtered.forEach(pin => {
     const card = document.createElement('div');
     card.className = 'card';
+
+    const hasTitle = pin.title && pin.title !== 'Без названия';
+    const bodyHTML = hasTitle
+      ? `<div class="card__body">
+           <div class="card__title">${pin.title}</div>
+           <div class="card__category">${getCategoryName(pin.category)}</div>
+         </div>`
+      : `<div class="card__body card__body--minimal">
+           <div class="card__category">${getCategoryName(pin.category)}</div>
+         </div>`;
+
     card.innerHTML = `
-      <img class="card__image" src="${pin.image}" alt="${pin.title}" loading="lazy"
-           onerror="this.src='https://via.placeholder.com/400x400/f0f0f0/ccc?text=Нет+фото'">
-      <div class="card__body">
-        <div class="card__title">${pin.title}</div>
-        <div class="card__category">${getCategoryName(pin.category)}</div>
-      </div>
+      <img class="card__image" src="${pin.image}" alt="${pin.title || ''}" loading="lazy"
+           onerror="this.src='https://via.placeholder.com/400x400/f0f0f0/ccc?text=Ошибка'">
+      ${bodyHTML}
     `;
     card.addEventListener('click', () => openModal(pin));
     grid.appendChild(card);
@@ -115,8 +125,13 @@ search.addEventListener('input', (e) => {
 function openModal(pin) {
   currentPinId = pin.id;
   modalImage.src = pin.image;
-  modalTitle.textContent = pin.title;
-  modalDescription.textContent = pin.description;
+  modalTitle.textContent = pin.title || '';
+  modalDescription.textContent = pin.description || '';
+
+  // Скрыть пустые поля
+  modalTitle.style.display = pin.title && pin.title !== 'Без названия' ? 'block' : 'none';
+  modalDescription.style.display = pin.description && pin.description !== 'Без описания' ? 'block' : 'none';
+
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -177,17 +192,16 @@ pinSubmit.addEventListener('click', () => {
   const category = pinCategory.value;
 
   if (!image) return alert('Вставь ссылку на картинку!');
-  if (!title) return alert('Напиши название!');
 
   const newPin = {
     id: Date.now(),
-    title: title,
+    title: title || 'Без названия',
     category: category,
     image: image,
-    description: description || 'Без описания'
+    description: description || ''
   };
 
-  pins.unshift(newPin); // Добавляем в начало
+  pins.unshift(newPin);
   savePins();
   renderPins();
   closeAddModal();
