@@ -17,6 +17,7 @@
       id="search"
       placeholder="Поиск..."
     >
+    <button class="add-btn" id="addBtn">＋</button>
   </header>
 
   <!-- Фильтры -->
@@ -31,7 +32,7 @@
   <!-- Сетка карточек -->
   <main class="grid" id="grid"></main>
 
-  <!-- Модальное окно -->
+  <!-- Модальное окно просмотра -->
   <div class="modal" id="modal">
     <div class="modal__overlay" id="modalOverlay"></div>
     <div class="modal__content">
@@ -39,6 +40,48 @@
       <img class="modal__image" id="modalImage" src="" alt="">
       <h2 class="modal__title" id="modalTitle"></h2>
       <p class="modal__description" id="modalDescription"></p>
+      <button class="delete-btn" id="deleteBtn">🗑 Удалить пин</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно добавления -->
+  <div class="modal" id="addModal">
+    <div class="modal__overlay" id="addModalOverlay"></div>
+    <div class="modal__content add-form">
+      <button class="modal__close" id="addModalClose">&times;</button>
+      <h2 class="add-form__title">📌 Новый пин</h2>
+
+      <div class="add-form__field">
+        <label>Ссылка на картинку</label>
+        <input type="text" id="pinImage" placeholder="Вставь URL картинки">
+        <small>ПКМ по картинке → "Копировать адрес изображения"</small>
+      </div>
+
+      <div class="add-form__preview" id="preview">
+        <p>Превью появится здесь</p>
+      </div>
+
+      <div class="add-form__field">
+        <label>Название</label>
+        <input type="text" id="pinTitle" placeholder="Например: Закат в горах">
+      </div>
+
+      <div class="add-form__field">
+        <label>Описание</label>
+        <input type="text" id="pinDescription" placeholder="Короткое описание">
+      </div>
+
+      <div class="add-form__field">
+        <label>Категория</label>
+        <select id="pinCategory">
+          <option value="nature">🌿 Природа</option>
+          <option value="food">🍕 Еда</option>
+          <option value="design">🎨 Дизайн</option>
+          <option value="lifestyle">☕ Лайфстайл</option>
+        </select>
+      </div>
+
+      <button class="add-form__submit" id="pinSubmit">Добавить пин</button>
     </div>
   </div>
 
