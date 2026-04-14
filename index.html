@@ -11,22 +11,17 @@
   <!-- Шапка -->
   <header class="header">
     <div class="header__logo">📌 ЦБТСтерест</div>
-    <input
-      type="text"
-      class="header__search"
-      id="search"
-      placeholder="Поиск..."
-    >
+    <input type="text" class="header__search" id="search" placeholder="Поиск...">
     <button class="add-btn" id="addBtn">＋</button>
   </header>
 
   <!-- Фильтры -->
   <nav class="filters" id="filters">
     <button class="filters__btn active" data-category="all">Все</button>
-    <button class="filters__btn" data-category="nature">Природа</button>
-    <button class="filters__btn" data-category="food">Еда</button>
-    <button class="filters__btn" data-category="design">Дизайн</button>
-    <button class="filters__btn" data-category="lifestyle">Лайфстайл</button>
+    <button class="filters__btn" data-category="refs">Рефы</button>
+    <button class="filters__btn" data-category="model">Модель</button>
+    <button class="filters__btn" data-category="sketches">Скетчи</button>
+    <button class="filters__btn" data-category="artifacts">Артефакты</button>
   </nav>
 
   <!-- Сетка карточек -->
@@ -63,7 +58,7 @@
 
       <div class="add-form__field">
         <label>Название <span class="optional">(необязательно)</span></label>
-        <input type="text" id="pinTitle" placeholder="Например: Закат в горах">
+        <input type="text" id="pinTitle" placeholder="Например: Референс персонажа">
       </div>
 
       <div class="add-form__field">
@@ -74,10 +69,10 @@
       <div class="add-form__field">
         <label>Категория</label>
         <select id="pinCategory">
-          <option value="nature">🌿 Природа</option>
-          <option value="food">🍕 Еда</option>
-          <option value="design">🎨 Дизайн</option>
-          <option value="lifestyle">☕ Лайфстайл</option>
+          <option value="refs">🎯 Рефы</option>
+          <option value="model">🧊 Модель</option>
+          <option value="sketches">✏️ Скетчи</option>
+          <option value="artifacts">🏺 Артефакты</option>
         </select>
       </div>
 

@@ -1,9 +1,7 @@
-// === Элементы ===
 const grid = document.getElementById('grid');
 const search = document.getElementById('search');
 const filtersEl = document.getElementById('filters');
 
-// Модалка просмотра
 const modal = document.getElementById('modal');
 const modalOverlay = document.getElementById('modalOverlay');
 const modalClose = document.getElementById('modalClose');
@@ -12,7 +10,6 @@ const modalTitle = document.getElementById('modalTitle');
 const modalDescription = document.getElementById('modalDescription');
 const deleteBtn = document.getElementById('deleteBtn');
 
-// Модалка добавления
 const addBtn = document.getElementById('addBtn');
 const addModal = document.getElementById('addModal');
 const addModalOverlay = document.getElementById('addModalOverlay');
@@ -29,7 +26,6 @@ let currentCategory = 'all';
 let currentSearch = '';
 let currentPinId = null;
 
-// === Загрузка данных ===
 async function loadPins() {
   const saved = localStorage.getItem('cbtPins');
   if (saved) {
@@ -37,8 +33,6 @@ async function loadPins() {
     renderPins();
     return;
   }
-
-  // Стартуем с пустого массива
   pins = [];
   savePins();
   renderPins();
@@ -48,7 +42,6 @@ function savePins() {
   localStorage.setItem('cbtPins', JSON.stringify(pins));
 }
 
-// === Отрисовка карточек ===
 function renderPins() {
   const filtered = pins.filter(pin => {
     const matchCategory = currentCategory === 'all' || pin.category === currentCategory;
@@ -63,7 +56,7 @@ function renderPins() {
 
   if (filtered.length === 0) {
     grid.innerHTML = `
-      <div class="empty-state" style="column-span: all; -webkit-column-span: all;">
+      <div class="empty-state">
         <div class="empty-state__icon">📌</div>
         <div class="empty-state__text">Пока пусто</div>
         <div class="empty-state__hint">Нажми ＋ чтобы добавить первый пин!</div>
@@ -98,15 +91,14 @@ function renderPins() {
 
 function getCategoryName(cat) {
   const names = {
-    nature: '🌿 Природа',
-    food: '🍕 Еда',
-    design: '🎨 Дизайн',
-    lifestyle: '☕ Лайфстайл'
+    refs: '🎯 Рефы',
+    model: '🧊 Модель',
+    sketches: '✏️ Скетчи',
+    artifacts: '🏺 Артефакты'
   };
   return names[cat] || cat;
 }
 
-// === Фильтрация ===
 filtersEl.addEventListener('click', (e) => {
   if (!e.target.classList.contains('filters__btn')) return;
   document.querySelectorAll('.filters__btn').forEach(btn => btn.classList.remove('active'));
@@ -115,23 +107,18 @@ filtersEl.addEventListener('click', (e) => {
   renderPins();
 });
 
-// === Поиск ===
 search.addEventListener('input', (e) => {
   currentSearch = e.target.value;
   renderPins();
 });
 
-// === Модалка просмотра ===
 function openModal(pin) {
   currentPinId = pin.id;
   modalImage.src = pin.image;
   modalTitle.textContent = pin.title || '';
   modalDescription.textContent = pin.description || '';
-
-  // Скрыть пустые поля
   modalTitle.style.display = pin.title && pin.title !== 'Без названия' ? 'block' : 'none';
   modalDescription.style.display = pin.description && pin.description !== 'Без описания' ? 'block' : 'none';
-
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -145,18 +132,15 @@ function closeModal() {
 modalOverlay.addEventListener('click', closeModal);
 modalClose.addEventListener('click', closeModal);
 
-// === Удаление пина ===
 deleteBtn.addEventListener('click', () => {
   if (currentPinId === null) return;
   if (!confirm('Удалить этот пин?')) return;
-
   pins = pins.filter(p => p.id !== currentPinId);
   savePins();
   renderPins();
   closeModal();
 });
 
-// === Модалка добавления ===
 addBtn.addEventListener('click', () => {
   addModal.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -174,7 +158,6 @@ function closeAddModal() {
 addModalOverlay.addEventListener('click', closeAddModal);
 addModalClose.addEventListener('click', closeAddModal);
 
-// === Превью картинки ===
 pinImage.addEventListener('input', () => {
   const url = pinImage.value.trim();
   if (url) {
@@ -184,7 +167,6 @@ pinImage.addEventListener('input', () => {
   }
 });
 
-// === Добавление пина ===
 pinSubmit.addEventListener('click', () => {
   const image = pinImage.value.trim();
   const title = pinTitle.value.trim();
@@ -207,7 +189,6 @@ pinSubmit.addEventListener('click', () => {
   closeAddModal();
 });
 
-// === Escape закрывает модалки ===
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeModal();
@@ -215,5 +196,4 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// === Старт ===
 loadPins();
