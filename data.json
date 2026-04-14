@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "title": "Горы на закате",
+    "category": "nature",
+    "image": "https://picsum.photos/seed/mountains/400/600",
+    "description": "Красивый закат в горах с видом на долину"
+  },
+  {
+    "id": 2,
+    "title": "Уютная кофейня",
+    "category": "lifestyle",
+    "image": "https://picsum.photos/seed/coffee/400/500",
+    "description": "Чашка капучино в уютном кафе"
+  },
+  {
+    "id": 3,
+    "title": "Минимализм в интерьере",
+    "category": "design",
+    "image": "https://picsum.photos/seed/interior/400/550",
+    "description": "Светлая комната в скандинавском стиле"
+  },
+  {
+    "id": 4,
+    "title": "Океанский берег",
+    "category": "nature",
+    "image": "https://picsum.photos/seed/ocean/400/700",
+    "description": "Волны разбиваются о скалистый берег"
+  },
+  {
+    "id": 5,
+    "title": "Стритфуд в Азии",
+    "category": "food",
+    "image": "https://picsum.photos/seed/streetfood/400/500",
+    "description": "Яркие блюда уличной еды"
+  },
+  {
+    "id": 6,
+    "title": "Типографика",
+    "category": "design",
+    "image": "https://picsum.photos/seed/typography/400/450",
+    "description": "Красивые шрифтовые композиции"
+  },
+  {
+    "id": 7,
+    "title": "Лесная тропа",
+    "category": "nature",
+    "image": "https://picsum.photos/seed/forest/400/650",
+    "description": "Тропинка через утренний туманный лес"
+  },
+  {
+    "id": 8,
+    "title": "Домашняя выпечка",
+    "category": "food",
+    "image": "https://picsum.photos/seed/baking/400/500",
+    "description": "Свежий хлеб на деревянной доске"
+  },
+  {
+    "id": 9,
+    "title": "Рабочее место",
+    "category": "lifestyle",
+    "image": "https://picsum.photos/seed/workspace/400/400",
+    "description": "Чистый стол, ноутбук, растение"
+  },
+  {
+    "id": 10,
+    "title": "Постер",
+    "category": "design",
+    "image": "https://picsum.photos/seed/poster/400/600",
+    "description": "Яркий графический постер"
+  },
+  {
+    "id": 11,
+    "title": "Паста карбонара",
+    "category": "food",
+    "image": "https://picsum.photos/seed/pasta/400/500",
+    "description": "Итальянская классика на тарелке"
+  },
+  {
+    "id": 12,
+    "title": "Велосипед у стены",
+    "category": "lifestyle",
+    "image": "https://picsum.photos/seed/bike/400/550",
+    "description": "Винтажный велосипед у кирпичной стены"
+  }
+]
