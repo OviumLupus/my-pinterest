@@ -43,7 +43,7 @@ body {
 }
 
 .header__search:focus {
-  border-color: #e60023;
+  border-color: #1a3a5c;
 }
 
 .add-btn {
@@ -51,7 +51,7 @@ body {
   height: 44px;
   border: none;
   border-radius: 50%;
-  background: #e60023;
+  background: #1a3a5c;
   color: #fff;
   font-size: 24px;
   cursor: pointer;
@@ -64,7 +64,7 @@ body {
 
 .add-btn:hover {
   transform: scale(1.1);
-  background: #ad081b;
+  background: #0f2440;
 }
 
 /* === Фильтры === */
@@ -88,12 +88,12 @@ body {
 }
 
 .filters__btn:hover {
-  background: #e60023;
+  background: #1a3a5c;
   color: #fff;
 }
 
 .filters__btn.active {
-  background: #e60023;
+  background: #1a3a5c;
   color: #fff;
 }
 
@@ -140,9 +140,40 @@ body {
   margin-top: 4px;
 }
 
+/* Карточка без названия — скрываем пустой body */
+.card__body:empty {
+  display: none;
+}
+
+.card__body--minimal {
+  padding: 8px 12px;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* === Пустое состояние === */
+.empty-state {
+  text-align: center;
+  padding: 80px 24px;
+  color: #999;
+}
+
+.empty-state__icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.empty-state__text {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.empty-state__hint {
+  font-size: 14px;
+  color: #bbb;
 }
 
 /* === Модальное окно === */
@@ -218,7 +249,7 @@ body {
 }
 
 .modal__close:hover {
-  background: #e60023;
+  background: #1a3a5c;
   color: #fff;
 }
 
@@ -228,17 +259,17 @@ body {
   width: calc(100% - 40px);
   margin: 4px 20px 20px;
   padding: 10px;
-  border: 2px solid #e60023;
+  border: 2px solid #1a3a5c;
   border-radius: 12px;
   background: #fff;
-  color: #e60023;
+  color: #1a3a5c;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .delete-btn:hover {
-  background: #e60023;
+  background: #1a3a5c;
   color: #fff;
 }
 
@@ -264,6 +295,12 @@ body {
   margin-bottom: 6px;
 }
 
+.optional {
+  font-weight: 400;
+  color: #999;
+  font-size: 12px;
+}
+
 .add-form__field input,
 .add-form__field select {
   width: 100%;
@@ -277,7 +314,7 @@ body {
 
 .add-form__field input:focus,
 .add-form__field select:focus {
-  border-color: #e60023;
+  border-color: #1a3a5c;
 }
 
 .add-form__field small {
@@ -315,7 +352,7 @@ body {
   padding: 14px;
   border: none;
   border-radius: 12px;
-  background: #e60023;
+  background: #1a3a5c;
   color: #fff;
   font-size: 16px;
   font-weight: 600;
@@ -324,7 +361,7 @@ body {
 }
 
 .add-form__submit:hover {
-  background: #ad081b;
+  background: #0f2440;
 }
 
 /* === Адаптивность === */
