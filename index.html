@@ -1,51 +1,171 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ЦБТСтерест</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-</head>
-<body>
-  <header class="header">
-    <div class="header__logo">
-  <img src="logo.png" alt="Лого" class="header__logo-img">
-  ЦБТСтерест
-</div>
-    <input type="text" class="header__search" id="searchInput" placeholder="Поиск...">
-    <button class="header__add-btn" id="addPinBtn">＋</button>
-  </header>
+// Firebase конфиг — ВСТАВЬ СВОЙ
+const firebaseConfig = {
+  apiKey: "AIzaSyAERmbtplsLaYRzfIMHBCXMp5-svPxyBLY",
+  authDomain: "moodboard-a3a42.firebaseapp.com",
+  projectId: "moodboard-a3a42",
+  storageBucket: "moodboard-a3a42.firebasestorage.app",
+  messagingSenderId: "389313774498",
+  appId: "1:389313774498:web:d7cc7e498e52db7e40b25c"
+};
 
-  <div class="filters">
-    <button class="filters__btn active" data-category="all">Все</button>
-    <button class="filters__btn" data-category="refs">Рефы</button>
-    <button class="filters__btn" data-category="model">Модель</button>
-    <button class="filters__btn" data-category="sketches">Скетчи</button>
-    <button class="filters__btn" data-category="artifacts">Артефакты</button>
-  </div>
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  <div class="pins-grid" id="pinsGrid"></div>
+// GitHub настройки
+const GITHUB_USER = "OviumLupus";
+const GITHUB_REPO = "my-pinterest";
+const GITHUB_BRANCH = "main";
 
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-      <h2 class="modal__title">Новый пин</h2>
-      <input type="text" class="modal__input" id="pinTitle" placeholder="Название">
-      <input type="url" class="modal__input" id="pinImage" placeholder="Ссылка на картинку">
-      <select class="modal__select" id="pinCategory">
-        <option value="refs">Рефы</option>
-        <option value="model">Модель</option>
-        <option value="sketches">Скетчи</option>
-        <option value="artifacts">Артефакты</option>
-      </select>
-      <div class="modal__buttons">
-        <button class="modal__btn modal__btn--cancel" id="cancelBtn">Отмена</button>
-        <button class="modal__btn modal__btn--save" id="saveBtn">Добавить</button>
-      </div>
-    </div>
-  </div>
+let selectedCategory = '';
+let currentFilter = 'Все';
 
-  <script src="script.js"></script>
-</body>
-</html>
+// === ЗАГРУЗКА КАРТИНОК ИЗ GITHUB ===
+async function loadGitHubImages() {
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/images?ref=${GITHUB_BRANCH}`
+    );
+    const files = await response.json();
+
+    if (!Array.isArray(files)) return;
+
+    for (const file of files) {
+      if (!file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i)) continue;
+
+      const imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/images/${file.name}`;
+
+      const existing = await db.collection('pins')
+        .where('fileName', '==', file.name)
+        .get();
+
+      if (existing.empty) {
+        await db.collection('pins').add({
+          url: imageUrl,
+          fileName: file.name,
+          title: file.name.replace(/\.[^.]+$/, ''),
+          category: 'Рендеры',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          source: 'github'
+        });
+        console.log('✅ Добавлен:', file.name);
+      }
+    }
+  } catch (error) {
+    console.log('GitHub sync:', error.message);
+  }
+}
+
+// === МОДАЛЬНОЕ ОКНО ===
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('active');
+  document.getElementById('pinUrl').value = '';
+  document.getElementById('pinTitle').value = '';
+  selectedCategory = '';
+  document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('cat-btn')) {
+    document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+    selectedCategory = e.target.dataset.cat;
+  }
+});
+
+// === СОХРАНЕНИЕ ===
+async function savePin() {
+  const url = document.getElementById('pinUrl').value.trim();
+  const title = document.getElementById('pinTitle').value.trim();
+  if (!url) return alert('Вставь ссылку!');
+
+  await db.collection('pins').add({
+    url,
+    title,
+    category: selectedCategory,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    source: 'manual'
+  });
+
+  closeModal();
+}
+
+// === ФИЛЬТРАЦИЯ ===
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.textContent;
+    loadPins();
+  });
+});
+
+// === ПОИСК ===
+document.getElementById('searchInput').addEventListener('input', () => {
+  loadPins();
+});
+
+// === ЗАГРУЗКА ПИНОВ ===
+function loadPins() {
+  const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+  db.collection('pins')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot((snapshot) => {
+      const grid = document.getElementById('pinGrid');
+      grid.innerHTML = '';
+
+      let pins = [];
+      snapshot.forEach(doc => {
+        pins.push({ id: doc.id, ...doc.data() });
+      });
+
+      if (currentFilter !== 'Все') {
+        pins = pins.filter(pin => pin.category === currentFilter);
+      }
+
+      if (searchQuery) {
+        pins = pins.filter(pin =>
+          (pin.title && pin.title.toLowerCase().includes(searchQuery)) ||
+          (pin.category && pin.category.toLowerCase().includes(searchQuery))
+        );
+      }
+
+      if (pins.length === 0) {
+        grid.innerHTML = '<p class="empty-message">Пинов пока нет 🥺</p>';
+        return;
+      }
+
+      pins.forEach(pin => {
+        const card = document.createElement('div');
+        card.className = 'pin-card';
+        card.innerHTML = `
+          <button class="pin-delete" onclick="deletePin('${pin.id}')" title="Удалить">✕</button>
+          <img src="${pin.url}" alt="${pin.title || ''}" loading="lazy">
+          ${pin.title ? `<div class="pin-title">${pin.title}</div>` : ''}
+          ${pin.category ? `<span class="pin-category">${pin.category}</span>` : ''}
+        `;
+        grid.appendChild(card);
+      });
+    });
+}
+
+// === УДАЛЕНИЕ ===
+async function deletePin(id) {
+  if (confirm('Удалить пин?')) {
+    await db.collection('pins').doc(id).delete();
+  }
+}
+
+// === КНОПКИ ===
+document.getElementById('addBtn').addEventListener('click', openModal);
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// === СТАРТ ===
+loadPins();
+loadGitHubImages();
