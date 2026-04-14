@@ -5,78 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ЦБТСтерест</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-
-  <!-- Шапка -->
   <header class="header">
-    <div class="header__logo">📌 ЦБТСтерест</div>
-    <input type="text" class="header__search" id="search" placeholder="Поиск...">
-    <button class="add-btn" id="addBtn">＋</button>
+    <div class="header__logo">✦ ЦБТСтерест</div>
+    <input type="text" class="header__search" id="searchInput" placeholder="Поиск...">
+    <button class="header__add-btn" id="addPinBtn">＋</button>
   </header>
 
-  <!-- Фильтры -->
-  <nav class="filters" id="filters">
+  <div class="filters">
     <button class="filters__btn active" data-category="all">Все</button>
     <button class="filters__btn" data-category="refs">Рефы</button>
     <button class="filters__btn" data-category="model">Модель</button>
     <button class="filters__btn" data-category="sketches">Скетчи</button>
     <button class="filters__btn" data-category="artifacts">Артефакты</button>
-  </nav>
-
-  <!-- Сетка карточек -->
-  <main class="grid" id="grid"></main>
-
-  <!-- Модальное окно просмотра -->
-  <div class="modal" id="modal">
-    <div class="modal__overlay" id="modalOverlay"></div>
-    <div class="modal__content">
-      <button class="modal__close" id="modalClose">&times;</button>
-      <img class="modal__image" id="modalImage" src="" alt="">
-      <h2 class="modal__title" id="modalTitle"></h2>
-      <p class="modal__description" id="modalDescription"></p>
-      <button class="delete-btn" id="deleteBtn">🗑 Удалить пин</button>
-    </div>
   </div>
 
-  <!-- Модальное окно добавления -->
-  <div class="modal" id="addModal">
-    <div class="modal__overlay" id="addModalOverlay"></div>
-    <div class="modal__content add-form">
-      <button class="modal__close" id="addModalClose">&times;</button>
-      <h2 class="add-form__title">📌 Новый пин</h2>
+  <div class="pins-grid" id="pinsGrid"></div>
 
-      <div class="add-form__field">
-        <label>Ссылка на картинку *</label>
-        <input type="text" id="pinImage" placeholder="Вставь URL картинки">
-        <small>ПКМ по картинке → "Копировать адрес изображения"</small>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2 class="modal__title">Новый пин</h2>
+      <input type="text" class="modal__input" id="pinTitle" placeholder="Название">
+      <input type="url" class="modal__input" id="pinImage" placeholder="Ссылка на картинку">
+      <select class="modal__select" id="pinCategory">
+        <option value="refs">Рефы</option>
+        <option value="model">Модель</option>
+        <option value="sketches">Скетчи</option>
+        <option value="artifacts">Артефакты</option>
+      </select>
+      <div class="modal__buttons">
+        <button class="modal__btn modal__btn--cancel" id="cancelBtn">Отмена</button>
+        <button class="modal__btn modal__btn--save" id="saveBtn">Добавить</button>
       </div>
-
-      <div class="add-form__preview" id="preview">
-        <p>Превью появится здесь</p>
-      </div>
-
-      <div class="add-form__field">
-        <label>Название <span class="optional">(необязательно)</span></label>
-        <input type="text" id="pinTitle" placeholder="Например: Референс персонажа">
-      </div>
-
-      <div class="add-form__field">
-        <label>Описание <span class="optional">(необязательно)</span></label>
-        <input type="text" id="pinDescription" placeholder="Короткое описание">
-      </div>
-
-      <div class="add-form__field">
-        <label>Категория</label>
-        <select id="pinCategory">
-          <option value="refs">🎯 Рефы</option>
-          <option value="model">🧊 Модель</option>
-          <option value="sketches">✏️ Скетчи</option>
-          <option value="artifacts">🏺 Артефакты</option>
-        </select>
-      </div>
-
-      <button class="add-form__submit" id="pinSubmit">Добавить пин</button>
     </div>
   </div>
 

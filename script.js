@@ -1,199 +1,138 @@
-const grid = document.getElementById('grid');
-const search = document.getElementById('search');
-const filtersEl = document.getElementById('filters');
+// ==========================================
+// 🔥 FIREBASE
+// ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyC1KHsAf3XEUPrA2QznZxXkeMZ6D7e6Y2c",
+  authDomain: "my-pinterest-84ff6.firebaseapp.com",
+  projectId: "my-pinterest-84ff6",
+  storageBucket: "my-pinterest-84ff6.firebasestorage.app",
+  messagingSenderId: "934283222631",
+  appId: "1:934283222631:web:cbfd2c70a1ee54b8373ec2",
+  measurementId: "G-YBMMQ4X065"
+};
 
-const modal = document.getElementById('modal');
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ==========================================
+// Элементы
+// ==========================================
+const pinsGrid = document.getElementById('pinsGrid');
+const searchInput = document.getElementById('searchInput');
+const addPinBtn = document.getElementById('addPinBtn');
 const modalOverlay = document.getElementById('modalOverlay');
-const modalClose = document.getElementById('modalClose');
-const modalImage = document.getElementById('modalImage');
-const modalTitle = document.getElementById('modalTitle');
-const modalDescription = document.getElementById('modalDescription');
-const deleteBtn = document.getElementById('deleteBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const saveBtn = document.getElementById('saveBtn');
+const filterBtns = document.querySelectorAll('.filters__btn');
 
-const addBtn = document.getElementById('addBtn');
-const addModal = document.getElementById('addModal');
-const addModalOverlay = document.getElementById('addModalOverlay');
-const addModalClose = document.getElementById('addModalClose');
-const pinImage = document.getElementById('pinImage');
-const pinTitle = document.getElementById('pinTitle');
-const pinDescription = document.getElementById('pinDescription');
-const pinCategory = document.getElementById('pinCategory');
-const pinSubmit = document.getElementById('pinSubmit');
-const preview = document.getElementById('preview');
-
-let pins = [];
 let currentCategory = 'all';
-let currentSearch = '';
-let currentPinId = null;
+let allPins = [];
 
-async function loadPins() {
-  const saved = localStorage.getItem('cbtPins');
-  if (saved) {
-    pins = JSON.parse(saved);
+const categoryNames = {
+  refs: 'Рефы',
+  model: 'Модель',
+  sketches: 'Скетчи',
+  artifacts: 'Артефакты'
+};
+
+// ==========================================
+// Загрузка пинов (реальное время!)
+// ==========================================
+db.collection('pins')
+  .orderBy('createdAt', 'desc')
+  .onSnapshot((snapshot) => {
+    allPins = [];
+    snapshot.forEach((doc) => {
+      allPins.push({ id: doc.id, ...doc.data() });
+    });
     renderPins();
-    return;
-  }
-  pins = [];
-  savePins();
-  renderPins();
-}
-
-function savePins() {
-  localStorage.setItem('cbtPins', JSON.stringify(pins));
-}
-
-function renderPins() {
-  const filtered = pins.filter(pin => {
-    const matchCategory = currentCategory === 'all' || pin.category === currentCategory;
-    const title = pin.title || '';
-    const description = pin.description || '';
-    const matchSearch = title.toLowerCase().includes(currentSearch.toLowerCase()) ||
-                        description.toLowerCase().includes(currentSearch.toLowerCase());
-    return matchCategory && matchSearch;
   });
 
-  grid.innerHTML = '';
+// ==========================================
+// Отрисовка
+// ==========================================
+function renderPins() {
+  const searchTerm = searchInput.value.toLowerCase();
+
+  const filtered = allPins.filter(pin => {
+    const matchCat = currentCategory === 'all' || pin.category === currentCategory;
+    const matchSearch = (pin.title || '').toLowerCase().includes(searchTerm);
+    return matchCat && matchSearch;
+  });
+
+  pinsGrid.innerHTML = '';
 
   if (filtered.length === 0) {
-    grid.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state__icon">📌</div>
-        <div class="empty-state__text">Пока пусто</div>
-        <div class="empty-state__hint">Нажми ＋ чтобы добавить первый пин!</div>
-      </div>
-    `;
+    pinsGrid.innerHTML = '<p style="text-align:center;color:#999;padding:60px 20px;font-size:18px;">Пинов пока нет 🙁<br>Нажми ＋ чтобы добавить!</p>';
     return;
   }
 
   filtered.forEach(pin => {
     const card = document.createElement('div');
-    card.className = 'card';
-
-    const hasTitle = pin.title && pin.title !== 'Без названия';
-    const bodyHTML = hasTitle
-      ? `<div class="card__body">
-           <div class="card__title">${pin.title}</div>
-           <div class="card__category">${getCategoryName(pin.category)}</div>
-         </div>`
-      : `<div class="card__body card__body--minimal">
-           <div class="card__category">${getCategoryName(pin.category)}</div>
-         </div>`;
-
+    card.className = 'pin-card';
     card.innerHTML = `
-      <img class="card__image" src="${pin.image}" alt="${pin.title || ''}" loading="lazy"
-           onerror="this.src='https://via.placeholder.com/400x400/f0f0f0/ccc?text=Ошибка'">
-      ${bodyHTML}
+      <img src="${pin.image}" alt="${pin.title}" class="pin-card__img"
+           onerror="this.src='https://via.placeholder.com/300x400?text=Ошибка'">
+      <div class="pin-card__info">
+        <span class="pin-card__category">${categoryNames[pin.category] || pin.category}</span>
+        <span class="pin-card__title">${pin.title}</span>
+      </div>
+      <button class="pin-card__delete" data-id="${pin.id}">✕</button>
     `;
-    card.addEventListener('click', () => openModal(pin));
-    grid.appendChild(card);
+    pinsGrid.appendChild(card);
+  });
+
+  document.querySelectorAll('.pin-card__delete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (confirm('Удалить пин?')) {
+        db.collection('pins').doc(btn.dataset.id).delete();
+      }
+    });
   });
 }
 
-function getCategoryName(cat) {
-  const names = {
-    refs: '🎯 Рефы',
-    model: '🧊 Модель',
-    sketches: '✏️ Скетчи',
-    artifacts: '🏺 Артефакты'
-  };
-  return names[cat] || cat;
-}
+// ==========================================
+// Добавление пина
+// ==========================================
+saveBtn.addEventListener('click', async () => {
+  const title = document.getElementById('pinTitle').value.trim();
+  const image = document.getElementById('pinImage').value.trim();
+  const category = document.getElementById('pinCategory').value;
 
-filtersEl.addEventListener('click', (e) => {
-  if (!e.target.classList.contains('filters__btn')) return;
-  document.querySelectorAll('.filters__btn').forEach(btn => btn.classList.remove('active'));
-  e.target.classList.add('active');
-  currentCategory = e.target.dataset.category;
-  renderPins();
-});
-
-search.addEventListener('input', (e) => {
-  currentSearch = e.target.value;
-  renderPins();
-});
-
-function openModal(pin) {
-  currentPinId = pin.id;
-  modalImage.src = pin.image;
-  modalTitle.textContent = pin.title || '';
-  modalDescription.textContent = pin.description || '';
-  modalTitle.style.display = pin.title && pin.title !== 'Без названия' ? 'block' : 'none';
-  modalDescription.style.display = pin.description && pin.description !== 'Без описания' ? 'block' : 'none';
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-  modal.classList.remove('open');
-  document.body.style.overflow = '';
-  currentPinId = null;
-}
-
-modalOverlay.addEventListener('click', closeModal);
-modalClose.addEventListener('click', closeModal);
-
-deleteBtn.addEventListener('click', () => {
-  if (currentPinId === null) return;
-  if (!confirm('Удалить этот пин?')) return;
-  pins = pins.filter(p => p.id !== currentPinId);
-  savePins();
-  renderPins();
-  closeModal();
-});
-
-addBtn.addEventListener('click', () => {
-  addModal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-});
-
-function closeAddModal() {
-  addModal.classList.remove('open');
-  document.body.style.overflow = '';
-  pinImage.value = '';
-  pinTitle.value = '';
-  pinDescription.value = '';
-  preview.innerHTML = '<p>Превью появится здесь</p>';
-}
-
-addModalOverlay.addEventListener('click', closeAddModal);
-addModalClose.addEventListener('click', closeAddModal);
-
-pinImage.addEventListener('input', () => {
-  const url = pinImage.value.trim();
-  if (url) {
-    preview.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<p>❌ Картинка не загрузилась</p>'">`;
-  } else {
-    preview.innerHTML = '<p>Превью появится здесь</p>';
+  if (!image) {
+    alert('Вставь ссылку на картинку!');
+    return;
   }
-});
 
-pinSubmit.addEventListener('click', () => {
-  const image = pinImage.value.trim();
-  const title = pinTitle.value.trim();
-  const description = pinDescription.value.trim();
-  const category = pinCategory.value;
-
-  if (!image) return alert('Вставь ссылку на картинку!');
-
-  const newPin = {
-    id: Date.now(),
+  await db.collection('pins').add({
     title: title || 'Без названия',
-    category: category,
     image: image,
-    description: description || ''
-  };
+    category: category,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
 
-  pins.unshift(newPin);
-  savePins();
-  renderPins();
-  closeAddModal();
+  document.getElementById('pinTitle').value = '';
+  document.getElementById('pinImage').value = '';
+  modalOverlay.classList.remove('active');
 });
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeModal();
-    closeAddModal();
-  }
+// ==========================================
+// События
+// ==========================================
+addPinBtn.addEventListener('click', () => modalOverlay.classList.add('active'));
+cancelBtn.addEventListener('click', () => modalOverlay.classList.remove('active'));
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) modalOverlay.classList.remove('active');
 });
 
-loadPins();
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCategory = btn.dataset.category;
+    renderPins();
+  });
+});
+
+searchInput.addEventListener('input', renderPins);

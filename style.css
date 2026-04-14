@@ -1,24 +1,17 @@
-/* === Сброс и база === */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #f0f0f0;
-  color: #333;
   min-height: 100vh;
 }
 
-/* === Шапка === */
 .header {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px 24px;
-  background: #fff;
+  padding: 12px 24px;
+  background: white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   position: sticky;
   top: 0;
@@ -26,48 +19,36 @@ body {
 }
 
 .header__logo {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a2e;
   white-space: nowrap;
 }
 
 .header__search {
   flex: 1;
-  max-width: 500px;
-  padding: 10px 16px;
-  border: 2px solid #ddd;
-  border-radius: 24px;
-  font-size: 16px;
+  padding: 10px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 50px;
+  font-size: 14px;
   outline: none;
-  transition: border-color 0.2s;
 }
 
-.header__search:focus {
-  border-color: #1a3a5c;
-}
+.header__search:focus { border-color: #1a1a2e; }
 
-.add-btn {
+.header__add-btn {
   width: 44px;
   height: 44px;
-  border: none;
   border-radius: 50%;
-  background: #1a3a5c;
-  color: #fff;
-  font-size: 24px;
+  border: none;
+  background: #1a1a2e;
+  color: white;
+  font-size: 22px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s, background 0.2s;
-  flex-shrink: 0;
 }
 
-.add-btn:hover {
-  transform: scale(1.1);
-  background: #0f2440;
-}
+.header__add-btn:hover { transform: scale(1.1); }
 
-/* === Фильтры === */
 .filters {
   display: flex;
   gap: 8px;
@@ -77,308 +58,113 @@ body {
 
 .filters__btn {
   padding: 8px 20px;
-  border: none;
-  border-radius: 20px;
+  border: 2px solid #ddd;
+  border-radius: 50px;
+  background: white;
   font-size: 14px;
   cursor: pointer;
-  background: #fff;
-  color: #333;
-  transition: all 0.2s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
-.filters__btn:hover {
-  background: #1a3a5c;
-  color: #fff;
-}
+.filters__btn:hover { border-color: #1a1a2e; }
 
 .filters__btn.active {
-  background: #1a3a5c;
-  color: #fff;
+  background: #1a1a2e;
+  color: white;
+  border-color: #1a1a2e;
 }
 
-/* === Masonry-сетка === */
-.grid {
+.pins-grid {
   columns: 4;
   column-gap: 16px;
-  padding: 0 24px 40px;
+  padding: 0 24px 24px;
 }
 
-.card {
+.pin-card {
   break-inside: avoid;
   margin-bottom: 16px;
+  background: white;
   border-radius: 16px;
   overflow: hidden;
-  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.pin-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+
+.pin-card__img { width: 100%; display: block; }
+
+.pin-card__info { padding: 12px; }
+
+.pin-card__category { font-size: 12px; color: #e74c3c; font-weight: 600; display: block; }
+
+.pin-card__title { font-size: 14px; font-weight: 600; color: #333; }
+
+.pin-card__delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: white;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  animation: fadeIn 0.4s ease;
+  opacity: 0;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-}
+.pin-card:hover .pin-card__delete { opacity: 1; }
+.pin-card__delete:hover { background: #e74c3c; }
 
-.card__image {
-  width: 100%;
-  display: block;
-}
-
-.card__body {
-  padding: 12px;
-}
-
-.card__title {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.card__category {
-  font-size: 12px;
-  color: #888;
-  margin-top: 4px;
-}
-
-/* Карточка без названия — скрываем пустой body */
-.card__body:empty {
-  display: none;
-}
-
-.card__body--minimal {
-  padding: 8px 12px;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* === Пустое состояние === */
-.empty-state {
-  text-align: center;
-  padding: 80px 24px;
-  color: #999;
-}
-
-.empty-state__icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-}
-
-.empty-state__text {
-  font-size: 18px;
-  margin-bottom: 8px;
-}
-
-.empty-state__hint {
-  font-size: 14px;
-  color: #bbb;
-}
-
-/* === Модальное окно === */
-.modal {
+.modal-overlay {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
   z-index: 200;
   justify-content: center;
   align-items: center;
 }
 
-.modal.open {
-  display: flex;
-}
+.modal-overlay.active { display: flex; }
 
-.modal__overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-}
-
-.modal__content {
-  position: relative;
-  background: #fff;
+.modal {
+  background: white;
   border-radius: 20px;
-  max-width: 500px;
+  padding: 32px;
   width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  z-index: 201;
-  animation: fadeIn 0.3s ease;
+  max-width: 440px;
 }
 
-.modal__image {
+.modal__title { font-size: 22px; margin-bottom: 20px; }
+
+.modal__input, .modal__select {
   width: 100%;
-  display: block;
-  border-radius: 20px 20px 0 0;
-}
-
-.modal__title {
-  padding: 16px 20px 4px;
-  font-size: 20px;
-}
-
-.modal__description {
-  padding: 4px 20px 12px;
-  color: #666;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.modal__close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.9);
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 202;
-  transition: background 0.2s;
-}
-
-.modal__close:hover {
-  background: #1a3a5c;
-  color: #fff;
-}
-
-/* === Кнопка удаления === */
-.delete-btn {
-  display: block;
-  width: calc(100% - 40px);
-  margin: 4px 20px 20px;
-  padding: 10px;
-  border: 2px solid #1a3a5c;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border: 2px solid #e0e0e0;
   border-radius: 12px;
-  background: #fff;
-  color: #1a3a5c;
   font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.delete-btn:hover {
-  background: #1a3a5c;
-  color: #fff;
-}
-
-/* === Форма добавления === */
-.add-form {
-  padding: 24px;
-}
-
-.add-form__title {
-  font-size: 22px;
-  margin-bottom: 16px;
-  padding: 0;
-}
-
-.add-form__field {
-  margin-bottom: 16px;
-}
-
-.add-form__field label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.optional {
-  font-weight: 400;
-  color: #999;
-  font-size: 12px;
-}
-
-.add-form__field input,
-.add-form__field select {
-  width: 100%;
-  padding: 10px 14px;
-  border: 2px solid #ddd;
-  border-radius: 12px;
-  font-size: 15px;
   outline: none;
-  transition: border-color 0.2s;
 }
 
-.add-form__field input:focus,
-.add-form__field select:focus {
-  border-color: #1a3a5c;
-}
+.modal__buttons { display: flex; gap: 12px; margin-top: 8px; }
 
-.add-form__field small {
-  display: block;
-  margin-top: 4px;
-  color: #999;
-  font-size: 12px;
-}
-
-.add-form__preview {
-  width: 100%;
-  min-height: 100px;
-  border: 2px dashed #ddd;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.add-form__preview img {
-  width: 100%;
-  display: block;
-  border-radius: 10px;
-}
-
-.add-form__preview p {
-  color: #ccc;
-  font-size: 14px;
-}
-
-.add-form__submit {
-  width: 100%;
-  padding: 14px;
+.modal__btn {
+  flex: 1;
+  padding: 12px;
   border: none;
   border-radius: 12px;
-  background: #1a3a5c;
-  color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
 }
 
-.add-form__submit:hover {
-  background: #0f2440;
-}
+.modal__btn--cancel { background: #f0f0f0; color: #666; }
+.modal__btn--save { background: #1a1a2e; color: white; }
 
-/* === Адаптивность === */
-@media (max-width: 1200px) {
-  .grid { columns: 3; }
-}
-
-@media (max-width: 800px) {
-  .grid { columns: 2; }
-}
-
-@media (max-width: 500px) {
-  .grid {
-    columns: 1;
-    padding: 0 12px 40px;
-  }
-  .header { padding: 12px; gap: 8px; }
-  .header__logo { font-size: 18px; }
-  .filters { padding: 12px; }
-}
+@media (max-width: 1200px) { .pins-grid { columns: 3; } }
+@media (max-width: 800px) { .pins-grid { columns: 2; } }
+@media (max-width: 500px) { .pins-grid { columns: 1; } }
