@@ -1,28 +1,57 @@
 // === Элементы ===
 const grid = document.getElementById('grid');
 const search = document.getElementById('search');
-const filters = document.getElementById('filters');
+const filtersEl = document.getElementById('filters');
+
+// Модалка просмотра
 const modal = document.getElementById('modal');
 const modalOverlay = document.getElementById('modalOverlay');
 const modalClose = document.getElementById('modalClose');
 const modalImage = document.getElementById('modalImage');
 const modalTitle = document.getElementById('modalTitle');
 const modalDescription = document.getElementById('modalDescription');
+const deleteBtn = document.getElementById('deleteBtn');
+
+// Модалка добавления
+const addBtn = document.getElementById('addBtn');
+const addModal = document.getElementById('addModal');
+const addModalOverlay = document.getElementById('addModalOverlay');
+const addModalClose = document.getElementById('addModalClose');
+const pinImage = document.getElementById('pinImage');
+const pinTitle = document.getElementById('pinTitle');
+const pinDescription = document.getElementById('pinDescription');
+const pinCategory = document.getElementById('pinCategory');
+const pinSubmit = document.getElementById('pinSubmit');
+const preview = document.getElementById('preview');
 
 let pins = [];
 let currentCategory = 'all';
 let currentSearch = '';
+let currentPinId = null;
 
 // === Загрузка данных ===
 async function loadPins() {
+  // Сначала проверяем localStorage
+  const saved = localStorage.getItem('myPins');
+  if (saved) {
+    pins = JSON.parse(saved);
+    renderPins();
+    return;
+  }
+
+  // Если нет — загружаем из data.json
   try {
     const response = await fetch('data.json');
     pins = await response.json();
+    savePins();
     renderPins();
   } catch (error) {
-    grid.innerHTML = '<p style="padding:24px;">Ошибка загрузки данных 😔</p>';
-    console.error(error);
+    grid.innerHTML = '<p style="padding:24px;">Ошибка загрузки 😔</p>';
   }
+}
+
+function savePins() {
+  localStorage.setItem('myPins', JSON.stringify(pins));
 }
 
 // === Отрисовка карточек ===
@@ -37,7 +66,7 @@ function renderPins() {
   grid.innerHTML = '';
 
   if (filtered.length === 0) {
-    grid.innerHTML = '<p style="padding:24px;text-align:center;">Ничего не найдено 🔍</p>';
+    grid.innerHTML = '<p style="padding:24px;text-align:center;column-span:all;">Ничего не найдено 🔍<br><br>Нажми ＋ чтобы добавить первый пин!</p>';
     return;
   }
 
@@ -45,7 +74,8 @@ function renderPins() {
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
-      <img class="card__image" src="${pin.image}" alt="${pin.title}" loading="lazy">
+      <img class="card__image" src="${pin.image}" alt="${pin.title}" loading="lazy"
+           onerror="this.src='https://via.placeholder.com/400x400/f0f0f0/ccc?text=Нет+фото'">
       <div class="card__body">
         <div class="card__title">${pin.title}</div>
         <div class="card__category">${getCategoryName(pin.category)}</div>
@@ -66,13 +96,11 @@ function getCategoryName(cat) {
   return names[cat] || cat;
 }
 
-// === Фильтрация по категории ===
-filters.addEventListener('click', (e) => {
+// === Фильтрация ===
+filtersEl.addEventListener('click', (e) => {
   if (!e.target.classList.contains('filters__btn')) return;
-
   document.querySelectorAll('.filters__btn').forEach(btn => btn.classList.remove('active'));
   e.target.classList.add('active');
-
   currentCategory = e.target.dataset.category;
   renderPins();
 });
@@ -83,8 +111,9 @@ search.addEventListener('input', (e) => {
   renderPins();
 });
 
-// === Модальное окно ===
+// === Модалка просмотра ===
 function openModal(pin) {
+  currentPinId = pin.id;
   modalImage.src = pin.image;
   modalTitle.textContent = pin.title;
   modalDescription.textContent = pin.description;
@@ -95,12 +124,81 @@ function openModal(pin) {
 function closeModal() {
   modal.classList.remove('open');
   document.body.style.overflow = '';
+  currentPinId = null;
 }
 
 modalOverlay.addEventListener('click', closeModal);
 modalClose.addEventListener('click', closeModal);
+
+// === Удаление пина ===
+deleteBtn.addEventListener('click', () => {
+  if (currentPinId === null) return;
+  if (!confirm('Удалить этот пин?')) return;
+
+  pins = pins.filter(p => p.id !== currentPinId);
+  savePins();
+  renderPins();
+  closeModal();
+});
+
+// === Модалка добавления ===
+addBtn.addEventListener('click', () => {
+  addModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+});
+
+function closeAddModal() {
+  addModal.classList.remove('open');
+  document.body.style.overflow = '';
+  pinImage.value = '';
+  pinTitle.value = '';
+  pinDescription.value = '';
+  preview.innerHTML = '<p>Превью появится здесь</p>';
+}
+
+addModalOverlay.addEventListener('click', closeAddModal);
+addModalClose.addEventListener('click', closeAddModal);
+
+// === Превью картинки ===
+pinImage.addEventListener('input', () => {
+  const url = pinImage.value.trim();
+  if (url) {
+    preview.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<p>❌ Картинка не загрузилась</p>'">`;
+  } else {
+    preview.innerHTML = '<p>Превью появится здесь</p>';
+  }
+});
+
+// === Добавление пина ===
+pinSubmit.addEventListener('click', () => {
+  const image = pinImage.value.trim();
+  const title = pinTitle.value.trim();
+  const description = pinDescription.value.trim();
+  const category = pinCategory.value;
+
+  if (!image) return alert('Вставь ссылку на картинку!');
+  if (!title) return alert('Напиши название!');
+
+  const newPin = {
+    id: Date.now(),
+    title: title,
+    category: category,
+    image: image,
+    description: description || 'Без описания'
+  };
+
+  pins.unshift(newPin); // Добавляем в начало
+  savePins();
+  renderPins();
+  closeAddModal();
+});
+
+// === Escape закрывает модалки ===
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') {
+    closeModal();
+    closeAddModal();
+  }
 });
 
 // === Старт ===
