@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Pinterest</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Шапка -->
+  <header class="header">
+    <div class="header__logo">📌 My Pinterest</div>
+    <input
+      type="text"
+      class="header__search"
+      id="search"
+      placeholder="Поиск..."
+    >
+  </header>
+
+  <!-- Фильтры -->
+  <nav class="filters" id="filters">
+    <button class="filters__btn active" data-category="all">Все</button>
+    <button class="filters__btn" data-category="nature">Природа</button>
+    <button class="filters__btn" data-category="food">Еда</button>
+    <button class="filters__btn" data-category="design">Дизайн</button>
+    <button class="filters__btn" data-category="lifestyle">Лайфстайл</button>
+  </nav>
+
+  <!-- Сетка карточек -->
+  <main class="grid" id="grid"></main>
+
+  <!-- Модальное окно -->
+  <div class="modal" id="modal">
+    <div class="modal__overlay" id="modalOverlay"></div>
+    <div class="modal__content">
+      <button class="modal__close" id="modalClose">&times;</button>
+      <img class="modal__image" id="modalImage" src="" alt="">
+      <h2 class="modal__title" id="modalTitle"></h2>
+      <p class="modal__description" id="modalDescription"></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
