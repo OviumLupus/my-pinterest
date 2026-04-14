@@ -29,8 +29,9 @@ body {
 }
 
 .header__logo-img {
-  height: 28px;
-  width: auto;
+  height: 32px;
+  width: 32px;
+  object-fit: contain;
 }
 
 .header__search {
